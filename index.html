@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VirtCloudPro | IP BlackListed</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .navbar {
+            width: 100%;
+            background-color: #1e1e1e;
+            overflow: auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .navbar a {
+            float: left;
+            padding: 12px;
+            color: #e0e0e0;
+            text-align: center;
+            text-decoration: none;
+            font-size: 17px;
+        }
+
+        .navbar a:hover {
+            background-color: #575757;
+        }
+
+        .container {
+            text-align: center;
+            width: 100%;
+            max-width: 900px;
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            box-sizing: border-box;
+            margin-top: 20px;
+            flex: 1;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .search-container {
+            position: relative;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+            background: #2c2c2c;
+            color: #e0e0e0;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]::placeholder {
+            color: #888;
+        }
+
+        .clear-button {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .clear-button:hover {
+            color: #e0e0e0;
+        }
+
+        .ip-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            word-wrap: break-word;
+        }
+
+        .ip-item {
+            background: #333;
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+            transition: background 0.3s;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .ip-item:hover {
+            background: #444;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .pagination button {
+            background: #2c2c2c;
+            color: #e0e0e0;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .pagination button:disabled {
+            background: #444;
+            cursor: not-allowed;
+        }
+
+        .stats {
+            margin-bottom: 20px;
+        }
+
+        .goto-page {
+            margin-top: 10px;
+        }
+
+        .goto-page input {
+            width: 50px;
+            padding: 5px;
+            margin-left: 5px;
+            margin-right: 5px;
+            border-radius: 4px;
+            border: 1px solid #444;
+            background: #2c2c2c;
+            color: #e0e0e0;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 10px;
+            background: #1e1e1e;
+            width: 100%;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .footer img {
+            width: 50px;
+            height: 50px;
+        }
+
+        .footer p {
+            margin: 10px 0 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="https://virtcloud.pro">VirtCloudPro Home</a>
+        <a href="#">Store</a>
+        <a href="#">Discord</a>
+        <a href="#">IP Blacklist Check</a>
+    </div>
+    <div class="container">
+        <h1><a href="https://virtcloud.pro">VirtCloudPro</a> BlackListed IPs</h1>
+        <p>Please search below to see if your IP is blacklisted in our network
+            <br><br> if it is please click on it and when
+            you are sent to create a ticket. <br><br>
+        </p>
+        <center><a href="https://blacklist.virtcloud.pro/sync_ips.php">RE-Sync IPS NOW</a></center>
+        <div class="stats">
+            <p>Total IPs Blocked: <span id="totalIPs"></span></p>
+            <p>Total Subnets Blocked: <span id="totalSubnets"></span></p>
+        </div>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search for your IP..." onkeyup="searchIP()">
+            <button class="clear-button" onclick="clearSearch()">X</button>
+        </div>
+        <div class="ip-grid" id="ipGrid"></div>
+        <div class="pagination" id="pagination"></div>
+        <div class="goto-page">
+            <label for="pageInput">Go to page:</label>
+            <input type="number" id="pageInput" min="1" max="1" value="1">
+            <button onclick="goToPage()">Go</button>
+            <span id="totalPages"></span>
+        </div>
+    </div>
+    <div class="footer">
+        <img src="/logo.png" alt="VirtCloudPro Logo">
+        <p>Made with love by the VirtCloud.Pro Team</p>
+    </div>
+    <script>
+        let allIPs = [];
+        let currentPage = 1;
+        const itemsPerPage = 9;
+        const maxPageButtons = 10;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('get_ips.php')
+                .then(response => response.json())
+                .then(data => {
+                    allIPs = data;
+                    updateStats();
+                    renderPage();
+                    renderPagination();
+                });
+        });
+
+        function calculateTotalIPs() {
+            let total = 0;
+            allIPs.forEach(ip => {
+                const [subnet, cidr] = ip.split('/');
+                if (cidr) {
+                    total += Math.pow(2, 32 - parseInt(cidr));
+                } else {
+                    total += 1;
+                }
+            });
+            return total;
+        }
+
+        function renderPage() {
+            const ipGrid = document.getElementById('ipGrid');
+            ipGrid.innerHTML = '';
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const paginatedIPs = allIPs.slice(start, end);
+
+            paginatedIPs.forEach(ip => {
+                const div = document.createElement('div');
+                div.classList.add('ip-item');
+                div.textContent = ip;
+                div.onclick = () => {
+                    const url = new URL('https://my.virtcloud.pro/submitticket.php');
+                    url.searchParams.set('step', '2');
+                    url.searchParams.set('deptid', '1');
+                    url.searchParams.set('subject', 'Request of a IPv4 WhiteList');
+                    url.searchParams.set('message', `WhiteListing IPv4 ${ip}`);
+                    window.location.href = url.toString();
+                };
+                ipGrid.appendChild(div);
+            });
+        }
+
+        function renderPagination() {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+            const pageCount = Math.ceil(allIPs.length / itemsPerPage);
+            const half = Math.floor(maxPageButtons / 2);
+            let startPage = currentPage - half;
+            let endPage = currentPage + half;
+
+            if (startPage < 1) {
+                startPage = 1;
+                endPage = Math.min(maxPageButtons, pageCount);
+            }
+
+            if (endPage > pageCount) {
+                endPage = pageCount;
+                startPage = Math.max(1, pageCount - maxPageButtons + 1);
+            }
+
+            const firstButton = document.createElement('button');
+            firstButton.textContent = 'First';
+            firstButton.disabled = currentPage === 1;
+            firstButton.addEventListener('click', () => {
+                currentPage = 1;
+                renderPage();
+                renderPagination();
+            });
+            pagination.appendChild(firstButton);
+
+            const prevButton = document.createElement('button');
+            prevButton.textContent = 'Previous';
+            prevButton.disabled = currentPage === 1;
+            prevButton.addEventListener('click', () => {
+                currentPage--;
+                renderPage();
+                renderPagination();
+            });
+            pagination.appendChild(prevButton);
+
+            for (let i = startPage; i <= endPage; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                if (i === currentPage) {
+                    button.disabled = true;
+                }
+                button.addEventListener('click', () => {
+                    currentPage = i;
+                    renderPage();
+                    renderPagination();
+                });
+                pagination.appendChild(button);
+            }
+
+            const nextButton = document.createElement('button');
+            nextButton.textContent = 'Next';
+            nextButton.disabled = currentPage === pageCount;
+            nextButton.addEventListener('click', () => {
+                currentPage++;
+                renderPage();
+                renderPagination();
+            });
+            pagination.appendChild(nextButton);
+
+            const lastButton = document.createElement('button');
+            lastButton.textContent = 'Last';
+            lastButton.disabled = currentPage === pageCount;
+            lastButton.addEventListener('click', () => {
+                currentPage = pageCount;
+                renderPage();
+                renderPagination();
+            });
+            pagination.appendChild(lastButton);
+
+            document.getElementById('pageInput').max = pageCount;
+            document.getElementById('totalPages').textContent = `of ${pageCount}`;
+        }
+
+        function goToPage() {
+            const pageInput = document.getElementById('pageInput');
+            let page = parseInt(pageInput.value);
+            const pageCount = Math.ceil(allIPs.length / itemsPerPage);
+            if (page >= 1 && page <= pageCount) {
+                currentPage = page;
+                renderPage();
+                renderPagination();
+            }
+        }
+
+        function searchIP() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            if (filter === '') {
+                fetch('get_ips.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        allIPs = data;
+                        currentPage = 1;
+                        updateStats();
+                        renderPage();
+                        renderPagination();
+                    });
+            } else {
+                const filteredIPs = allIPs.filter(ip => ip.toLowerCase().includes(filter));
+                currentPage = 1;
+                allIPs = filteredIPs.length ? filteredIPs : [];
+                updateStats();
+                renderPage();
+                renderPagination();
+            }
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            searchIP();
+        }
+
+        function updateStats() {
+            const totalIPs = calculateTotalIPs();
+            const totalSubnets = allIPs.filter(ip => ip.includes('/')).length;
+            document.getElementById('totalIPs').textContent = totalIPs;
+            document.getElementById('totalSubnets').textContent = totalSubnets;
+        }
+    </script>
+</body>
+</html>
