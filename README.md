@@ -24,7 +24,7 @@ CREATE TABLE ips (
     ip VARCHAR(45) NOT NULL PRIMARY KEY
 );
 ```
-# Make sure to read the `get_ips.php` and `sync_ips.php` make sure to fill the database in.
+Make sure to read the `get_ips.php` and `sync_ips.php` as well as `index.html` make sure to fill the database in.
 
 # ips.txt
 Create a file named ips.txt in the specified location (/var/www/YOUR_LOCATION_TO/ips.txt) and populate it with the desired blacklisted IPs and subnets, each on a new line.
