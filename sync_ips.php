@@ -1,8 +1,8 @@
 <?php
 $servername = "localhost";
-$username = "virtclou1_blacklist";
-$password = "cbLEc1O#O7AqmQi!";
-$dbname = "virtclou1_blacklist";
+$username = "";
+$password = "";
+$dbname = "";
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
