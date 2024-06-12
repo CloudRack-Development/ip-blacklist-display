@@ -21,8 +21,10 @@
         .navbar {
             width: 100%;
             background-color: #1e1e1e;
-            overflow: auto;
+            overflow: show;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 1000;
         }
 
         .navbar a {
@@ -36,6 +38,14 @@
 
         .navbar a:hover {
             background-color: #575757;
+        }
+
+        .navbar .icon {
+            display: none;
+            color: #e0e0e0;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 12px;
         }
 
         .container {
@@ -173,14 +183,46 @@
             margin: 10px 0 0;
             font-size: 14px;
         }
+
+        @media screen and (max-width: 600px) {
+            .navbar a {
+                display: none;
+            }
+
+            .navbar a.icon {
+                float: right;
+                display: block;
+            }
+
+            .navbar.responsive {
+                position: relative;
+            }
+
+            .navbar.responsive a {
+                float: none;
+                display: block;
+                text-align: left;
+                background-color: #1e1e1e;
+                width: 100%;
+            }
+
+            .navbar.responsive a.icon {
+                position: absolute;
+                right: 0;
+                top: 0;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="navbar">
+    <div class="navbar" id="navbar">
         <a href="https://virtcloud.pro">VirtCloudPro Home</a>
-        <a href="#">Store</a>
+        <a href="https://my.virtcloud.pro">Store</a>
         <a href="#">Discord</a>
-        <a href="#">IP Blacklist Check</a>
+        <a href="https://fw.virtcloud.pro">CRFW-CLI</a>
+        <a href="javascript:void(0);" class="icon" onclick="toggleMenu()">
+            &#9776;
+        </a>
     </div>
     <div class="container">
         <h1><a href="https://virtcloud.pro">VirtCloudPro</a> BlackListed IPs</h1>
@@ -190,7 +232,8 @@
         </p>
         <center><a href="https://blacklist.virtcloud.pro/sync_ips.php">RE-Sync IPS NOW</a></center>
         <div class="stats">
-            <p>Total IPs Blocked: <span id="totalIPs"></span></p>
+            <p>We have Blocked: <span id="totalIPs"></span></p>
+            <p>Did you know that's <span id="percentBlocked"></span>% of the internet blocked for bad behaviors?</p>
             <p>Total Subnets Blocked: <span id="totalSubnets"></span></p>
         </div>
         <div class="search-container">
@@ -213,8 +256,9 @@
     <script>
         let allIPs = [];
         let currentPage = 1;
-        const itemsPerPage = 9;
-        const maxPageButtons = 10;
+        const itemsPerPage = 5000;
+        const maxPageButtons = 3;
+        const totalIPsInInternet = 2 ** 32;  // Total number of possible IPv4 addresses
 
         document.addEventListener('DOMContentLoaded', () => {
             fetch('get_ips.php')
@@ -240,16 +284,19 @@
             return total;
         }
 
+        function calculatePercentBlocked(totalIPs) {
+            return ((totalIPs / totalIPsInInternet) * 100).toFixed(6);
+        }
+
         function renderPage() {
             const ipGrid = document.getElementById('ipGrid');
             ipGrid.innerHTML = '';
             const start = (currentPage - 1) * itemsPerPage;
             const end = start + itemsPerPage;
-            const paginatedIPs = allIPs.slice(start, end);
-
-            paginatedIPs.forEach(ip => {
+            const pageIPs = allIPs.slice(start, end);
+            pageIPs.forEach(ip => {
                 const div = document.createElement('div');
-                div.classList.add('ip-item');
+                div.className = 'ip-item';
                 div.textContent = ip;
                 div.onclick = () => {
                     const url = new URL('https://my.virtcloud.pro/submitticket.php');
@@ -381,8 +428,19 @@
         function updateStats() {
             const totalIPs = calculateTotalIPs();
             const totalSubnets = allIPs.filter(ip => ip.includes('/')).length;
+            const percentBlocked = calculatePercentBlocked(totalIPs);
             document.getElementById('totalIPs').textContent = totalIPs;
             document.getElementById('totalSubnets').textContent = totalSubnets;
+            document.getElementById('percentBlocked').textContent = percentBlocked;
+        }
+
+        function toggleMenu() {
+            const navbar = document.getElementById('navbar');
+            if (navbar.className === 'navbar') {
+                navbar.className += ' responsive';
+            } else {
+                navbar.className = 'navbar';
+            }
         }
     </script>
 </body>
